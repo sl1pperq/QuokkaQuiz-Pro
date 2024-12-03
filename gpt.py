@@ -3,7 +3,7 @@ import requests
 url = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion"
 headers = {
     "Content-Type": "application/json",
-    "Authorization": "Api-Key AQVNxPeZEOi3AfP3TkWHnAkmO8QziGmvbu9lV2A6"
+    "Authorization": "Api-Key XXX"
 }
 
 prompt = {
