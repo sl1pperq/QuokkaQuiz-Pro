@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Quiz</title>
+    {% include "metrika.html" %}
+    {% block yandex_metrika %}{% endblock %}
+    <link href="/static/bs/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% if status == "PREPARE" %}
+        <style>
+            body {
+                background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+                background-size: 400% 400%;
+                animation: gradient 15s ease infinite;
+                height: 100vh;
+            }
+
+            @keyframes gradient {
+                0% {
+                    background-position: 0% 50%;
+                }
+                50% {
+                    background-position: 100% 50%;
+                }
+                100% {
+                    background-position: 0% 50%;
+                }
+            }
+
+        </style>
+    {% endif %}
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+
+            <h1 style="visibility: collapse">Просмотр результатов</h1>
+
+            <nav class="navbar fixed-top bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="/">КвоккаКвиз</a>
+                </div>
+            </nav>
+
+            <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+                <symbol id="arrow-right-circle" viewBox="0 0 16 16">
+                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                </symbol>
+            </svg>
+
+            {% if status == True %}
+
+                <div class="col-lg-8 mx-auto p-4 py-md-5">
+                    <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
+                        <a href="#" class="d-flex align-items-center text-body-emphasis text-decoration-none">
+                            <span class="fs-4">Центр продаж КвоккаКвиз</span>
+                        </a>
+                    </header>
+
+                    <main>
+                        <h1 class="text-body-emphasis">Спасибо за покупку!</h1>
+                        <p class="fs-5 col-md-8">
+                            Мы рады, что вы приобрели набор квизов. Надеемся, что вам понравится строить уроки для
+                            учеников
+                            по-новому. Желаем вам удачи!
+                        </p>
+
+                        <div class="mb-5">
+                            <a href="/constructor" class="btn btn-primary btn-lg px-4">В учительскую</a>
+                        </div>
+
+                        <hr class="col-3 col-md-2 mb-5">
+
+                        <div class="row g-5">
+                            <div class="col-md-6">
+                                <h2 class="text-body-emphasis">Инструкция</h2>
+                                <p>
+                                    Вы можете узнать подробнее, как создавать квизы правильно и продуктивно
+                                </p>
+                                <ul class="list-unstyled ps-0">
+                                    <li>
+                                        <a class="icon-link mb-1"
+                                           href="#" rel="noopener">
+                                            <svg class="bi" width="16" height="16">
+                                                <use xlink:href="#arrow-right-circle"/>
+                                            </svg>
+                                            Создание вопросов
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="icon-link mb-1" href="#">
+                                            <svg class="bi" width="16" height="16">
+                                                <use xlink:href="#arrow-right-circle"/>
+                                            </svg>
+                                            Просмотр результатов
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="icon-link mb-1" href="#">
+                                            <svg class="bi" width="16" height="16">
+                                                <use xlink:href="#arrow-right-circle"/>
+                                            </svg>
+                                            Управление группами
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h2 class="text-body-emphasis">Помощь</h2>
+                                <p>
+                                    Вы можете всегда получить оперативный ответ от службы поддержки
+                                </p>
+                                <ul class="list-unstyled ps-0">
+                                    <li>
+                                        <a class="icon-link mb-1">
+                                            <svg class="bi" width="16" height="16">
+                                                <use xlink:href="#arrow-right-circle"/>
+                                            </svg>
+                                            Написать в поддержку
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="icon-link mb-1" href="#">
+                                            <svg class="bi" width="16" height="16">
+                                                <use xlink:href="#arrow-right-circle"/>
+                                            </svg>
+                                            Позвонить
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="icon-link mb-1" href="#">
+                                            <svg class="bi" width="16" height="16">
+                                                <use xlink:href="#arrow-right-circle"/>
+                                            </svg>
+                                            Написать в WhatsApp
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </main>
+                    <footer class="pt-5 my-5 text-body-secondary border-top">
+                        Самозанятый Аверин Сергей Дмитриевич, ИНН 772882369040
+                    </footer>
+                </div>
+
+            {% elif status == "PREPARE" %}
+
+                <div class="card rounded-4 border-0" style="margin-top: 100px">
+                    <div class="card-body">
+                        <h4 class="card-title fw-bold">
+                            Покупка
+                        </h4>
+                        <p class="card-text lead">
+                            Вы хотите купить {{ ds }} за {{ price }} ₽?
+                        </p>
+                        <a href="{{ link }}" class="btn btn-primary rounded-4">Оформить!</a>
+                        <hr>
+                        <div class="alert alert-success rounded-4 border-0" role="alert">
+                            Оплата проходит безопасно через платежный сервис РобоКасса. Можно оплатить банковскими
+                            картами VISA, MasterCard, Мир, а также по СБП или Яндекс Пэй. После покупки вы получите чек.
+                        </div>
+                        <div class="alert alert-warning rounded-4 border-0" role="alert">
+                            Вы хотите купить больше 100 квизов? Тогда напишите нам на почту admin@banjosurf.ru, чтобы
+                            получить персональное предложение со скидкой до 40%.
+                        </div>
+                    </div>
+                </div>
+
+            {% else %}
+                <div class="col-lg-8 mx-auto p-4 py-md-5">
+                    <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
+                        <a href="#" class="d-flex align-items-center text-body-emphasis text-decoration-none">
+                            <span class="fs-4">Центр продаж КвоккаКвиз</span>
+                        </a>
+                    </header>
+
+                    <main>
+                        <h1 class="text-body-emphasis">Оплата не прошла!</h1>
+                        <p class="fs-5 col-md-8">
+                            Проверьте реквезиты карты и попробуйте снова. Если такая проблема все еще осталась -
+                            свяжитесь с
+                            нами
+                        </p>
+
+                        <div class="mb-5">
+                            <a href="#" class="btn btn-primary btn-lg px-4">На главную</a>
+                        </div>
+                    </main>
+
+                    <footer class="pt-5 my-5 text-body-secondary border-top">
+                        Самозанятый Аверин Сергей Дмитриевич, ИНН 772882369040
+                    </footer>
+                </div>
+
+            {% endif %}
+
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

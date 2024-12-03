@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>КвоккаConnect - личное пространство ученика</title>
+    {% include "metrika.html" %}
+    {% block yandex_metrika %}{% endblock %}
+    <link href="/static/bs/bootstrap.min.css" rel="stylesheet">
+    <script src="/static/bs/bootstrap.min.js"></script>
+    <script src="/static/allcss/kit.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% if start == True or auth == 0 %}
+        <style>
+        body {
+            background: rgb(238, 174, 202);
+            background: radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(148, 187, 233, 1) 100%);
+        }
+    {% endif %}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+
+            <h1 style="visibility: collapse">Просмотр результатов</h1>
+
+            <nav class="navbar fixed-top bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="/">КвоккаКвиз</a></a>
+                </div>
+            </nav>
+
+            {% if start == True %}
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Регистрация в программе взаимности</h5>
+                        <p class="card-text">Заполните все необходимые поля, чтобы продолжить</p>
+                        <form action="/social/reg" method="post">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Имя</label>
+                                    <input name="name" type="text" class="form-control">
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label">Почта</label>
+                                    <input name="mail" type="email" class="form-control">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-3">Создать акканут</button>
+                            <div class="form-text mt-3">
+                                Нажимая кнопку, вы соглашаетесь на
+                                <a target="_blank" href="https://law.quokkaquiz.ru/personal">обработку</a>
+                                персональных данных
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                {% if auth == 1 %}
+                    {% if user.premium == False %}
+                        <div class="card mt-4">
+                            <div class="card-body">
+                                Оформляйте ученическую подписку КвоккаOne в разделе <b>Магазин</b>, чтобы получить
+                                больше преимуществ
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="card mt-4">
+                            <div class="card-body">
+                                Спасибо, что оформили подписку! ❤️
+                            </div>
+                        </div>
+                    {% endif %}
+
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-3">
+                            <div class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary rounded-3">
+                                <a href="/social/my"
+                                   class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="32" fill="currentColor"
+                                         class="bi bi-box me-2" viewBox="0 0 16 16">
+                                        <path d="M6 6.207v9.043a.75.75 0 0 0 1.5 0V10.5a.5.5 0 0 1 1 0v4.75a.75.75 0 0 0 1.5 0v-8.5a.25.25 0 1 1 .5 0v2.5a.75.75 0 0 0 1.5 0V6.5a3 3 0 0 0-3-3H6.236a1 1 0 0 1-.447-.106l-.33-.165A.83.83 0 0 1 5 2.488V.75a.75.75 0 0 0-1.5 0v2.083c0 .715.404 1.37 1.044 1.689L5.5 5c.32.32.5.754.5 1.207"/>
+                                        <path d="M8 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+                                    </svg>
+                                    <span class="fs-4">Комната ученика</span>
+                                </a>
+                                <hr>
+                                <ul class="nav nav-pills flex-column mb-auto">
+                                    <li class="nav-item goodlink">
+                                        <a onclick="showStatMenu()" id="statMenuLink" href="#"
+                                           class="nav-link link-body-emphasis"
+                                           aria-current="page">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                 fill="currentColor"
+                                                 class="bi bi-house me-2 mb-1" viewBox="0 0 16 16">
+                                                <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/>
+                                                <path fill-rule="evenodd"
+                                                      d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A8 8 0 0 1 0 10m8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3"/>
+                                            </svg>
+                                            Статистика
+                                        </a>
+                                    </li>
+                                    <li class="nav-item goodlink">
+                                        <a id="teachTaskLink" onclick="showTeachTask()"
+                                           class="nav-link link-body-emphasis "
+                                           style="cursor: pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                 fill="currentColor"
+                                                 class="bi bi-house me-2 mb-1" viewBox="0 0 16 16">
+                                                <path d="M2 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v11.5a.5.5 0 0 1-.777.416L7 13.101l-4.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v10.566l3.723-2.482a.5.5 0 0 1 .554 0L11 14.566V4a1 1 0 0 0-1-1z"/>
+                                                <path d="M4.268 1H12a1 1 0 0 1 1 1v11.768l.223.148A.5.5 0 0 0 14 13.5V2a2 2 0 0 0-2-2H6a2 2 0 0 0-1.732 1"/>
+                                            </svg>
+                                            Задания от учителей
+                                        </a>
+                                    </li>
+                                    <li class="nav-item goodlink">
+                                        <a onclick="showStore()" id="storeLink" href="#"
+                                           class="nav-link link-body-emphasis "
+                                           style="cursor: pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                 fill="currentColor"
+                                                 class="bi bi-house me-2 mb-1" viewBox="0 0 16 16">
+                                                <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l1.25 5h8.22l1.25-5zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0"/>
+                                            </svg>
+                                            Магазин
+                                        </a>
+                                    </li>
+                                    <li class="nav-item goodlink">
+                                        <a onclick="showOrders()" id="ordersLink" href="#"
+                                           class="nav-link link-body-emphasis "
+                                           style="cursor: pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                 fill="currentColor"
+                                                 class="bi bi-house me-2 mb-1" viewBox="0 0 16 16">
+                                                <path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.37 2.37 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0M1.5 8.5A.5.5 0 0 1 2 9v6h12V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5m2 .5a.5.5 0 0 1 .5.5V13h8V9.5a.5.5 0 0 1 1 0V13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5a.5.5 0 0 1 .5-.5"/>
+
+                                            </svg>
+                                            Мои заказы
+                                        </a>
+                                    </li>
+                                    <li class="nav-item goodlink">
+                                        <a onclick="showSolveHistory()" id="solveHistory" href="#"
+                                           class="nav-link link-body-emphasis "
+                                           style="cursor: pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                 fill="currentColor"
+                                                 class="bi bi-house me-2 mb-1" viewBox="0 0 16 16">
+                                                <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z"/>
+                                                <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0z"/>
+                                                <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5"/>
+                                            </svg>
+                                            История прохождений
+                                        </a>
+                                    </li>
+                                    <li class="nav-item goodlink">
+                                        <a id="prepareLink" onclick="showPrepare()"
+                                           target="_blank" class="nav-link link-body-emphasis" style="cursor: pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                 fill="currentColor"
+                                                 class="bi bi-house me-2 mb-1" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd"
+                                                      d="M10.646.646a.5.5 0 0 1 .708 0l4 4a.5.5 0 0 1 0 .708l-1.902 1.902-.829 3.313a1.5 1.5 0 0 1-1.024 1.073L1.254 14.746 4.358 4.4A1.5 1.5 0 0 1 5.43 3.377l3.313-.828zm-1.8 2.908-3.173.793a.5.5 0 0 0-.358.342l-2.57 8.565 8.567-2.57a.5.5 0 0 0 .34-.357l.794-3.174-3.6-3.6z"/>
+                                                <path fill-rule="evenodd"
+                                                      d="M2.832 13.228 8 9a1 1 0 1 0-1-1l-4.228 5.168-.026.086z"/>
+
+                                            </svg>
+                                            Подготовка
+                                        </a>
+                                    </li>
+                                    <li class="nav-item goodlink">
+                                        <a id="tutorialLink1" href="#" class="nav-link link-body-emphasis "
+                                           style="cursor: pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                 fill="currentColor"
+                                                 class="bi bi-house me-2 mb-1" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd"
+                                                      d="M6 8V1h1v6.117L8.743 6.07a.5.5 0 0 1 .514 0L11 7.117V1h1v7a.5.5 0 0 1-.757.429L9 7.083 6.757 8.43A.5.5 0 0 1 6 8"/>
+                                                <path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2"/>
+                                                <path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z"/>
+
+                                            </svg>
+                                            Справка <span class="badge rounded-pill text-bg-warning">Скоро</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item goodlink">
+                                        <button data-bs-toggle="modal" data-bs-target="#supportModal" id="supportLink1"
+                                                class="nav-link link-body-emphasis "
+                                                style="cursor: pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                 fill="currentColor"
+                                                 class="bi bi-house me-2 mb-1" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd"
+                                                      d="M7.21.8C7.69.295 8 0 8 0q.164.544.371 1.038c.812 1.946 2.073 3.35 3.197 4.6C12.878 7.096 14 8.345 14 10a6 6 0 0 1-12 0C2 6.668 5.58 2.517 7.21.8m.413 1.021A31 31 0 0 0 5.794 3.99c-.726.95-1.436 2.008-1.96 3.07C3.304 8.133 3 9.138 3 10a5 5 0 0 0 10 0c0-1.201-.796-2.157-2.181-3.7l-.03-.032C9.75 5.11 8.5 3.72 7.623 1.82z"/>
+                                                <path fill-rule="evenodd"
+                                                      d="M4.553 7.776c.82-1.641 1.717-2.753 2.093-3.13l.708.708c-.29.29-1.128 1.311-1.907 2.87z"/>
+                                            </svg>
+                                            Поддержка
+                                        </button>
+                                    </li>
+                                </ul>
+                                <hr>
+                                <div class="dropdown">
+                                    <a href="#"
+                                       class="d-flex align-items-center link-body-emphasis text-decoration-none dropdown-toggle"
+                                       data-bs-toggle="dropdown" aria-expanded="false">
+                                        <strong>Аккаунт</strong>
+                                    </a>
+                                    <ul class="dropdown-menu text-small shadow">
+                                        <li><a class="dropdown-item" href="/social/logout">Выйти из аккаунта</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-9">
+                            <div id="stat">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="fa-solid fa-hand"></i>
+                                            Привет, {{ user.name }}!
+                                        </h5>
+                                        <p class="card-text">
+                                            У тебя сейчас {{ user.solved }} пройденных квизов, баланс
+                                            составляет {{ user.balance }}
+                                            QC
+                                            <br>Твоя почта для получения QC - <b>{{ user.mail }}</b>
+                                            <br>Твой ID для групп - <b>{{ user.id }}</b>
+                                        </p>
+                                        <hr>
+                                        <button onclick="showInfo()" class="btn btn-primary" id="infoBut">
+                                            Подробнее
+                                        </button>
+                                        <div id="infoQC" style="display: none;" class="mb-0">
+                                            <h5>Как получать QuokkaCoin?</h5>
+                                            <ol>
+                                                <li>Пройдите любой квиз</li>
+                                                <li>После прохождения найдите поле ввода с названием "QuokkaConnect"
+                                                </li>
+                                                <li>Введите туда свою почту - {{ user.mail }}</li>
+                                                <li>Нажмите кнопку "Сохранить"</li>
+                                                <li>КвоккаКоины поступят на ваш баланс через несколько минут</li>
+                                            </ol>
+                                            <h5>Как потратить QuokkaCoin?</h5>
+                                            <ol class="mb-0">
+                                                <li>В вашем личном кабинете QuokkaConnect найдите раздел "Магазин"</li>
+                                                <li>Выберите любой понравившийся вам товар и нажмите "Купить"</li>
+                                                <li>Выберите место получения и введите контактную информацию и нажмите
+                                                    "Офомитьь"
+                                                </li>
+                                                <li>Приблизительно на следующий учебный день заказ будет готов к
+                                                    выдаче
+                                                </li>
+                                                <li>Всю информацию о статусах заказа вы будите получать на электорнную
+                                                    почту {{ user.mail }}</li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card mt-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="fa-solid fa-lock"></i>
+                                            Безопасность
+                                        </h5>
+                                        <p class="card-text">
+                                            Твой уникальный код для быстрого доступа:
+                                        </p>
+
+                                        <h5 style="color: darkred">{{ user.uni_key }}</h5>
+
+                                        <p class="card-text">
+                                            Если ты подозреваешь, что его могли украсть - обязательно смени ключ
+                                            быстрого
+                                            доступа. При необходимости - напиши в поддержку.
+                                        </p>
+
+                                        <a href="/social/new/uniq" class="btn btn-primary">
+                                            Сменить ключ
+                                        </a>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="teachTask" style="display: none">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="fa-solid fa-thumbtack me-1"></i>
+                                            Задания от учителей
+                                        </h5>
+                                        <p class="card-text">
+                                            Вот все задания, не забывай нажимать на кнопку "Отправить", чтобы учитель
+                                            точно получил твои ответы
+                                        </p>
+                                        <hr>
+                                        <div class="row g-3">
+                                            {% for t in user.tasks %}
+                                                {% if t.send != True %}
+                                                    <div class="col-md-6">
+                                                        <div class="card">
+                                                            <div class="card-body">
+                                                                <h5 class="card-title">{{ t.title }}</h5>
+                                                                <h6 class="card-subtitle mb-2 text-body-secondary">
+                                                                    ID: {{ t.id }}</h6>
+                                                                <p class="card-text">
+                                                                    {% if t.done == False %}
+                                                                        Выполни задание, чтобы не расстраивать учителя и
+                                                                        получить
+                                                                        хорошую оценку!
+                                                                    {% else %}
+                                                                        Ты - молодец! Ты решил правльно {{ t.done }}
+                                                                        номера
+                                                                        в
+                                                                        этом
+                                                                        квизе! Так держать!
+                                                                    {% endif %}
+                                                                </p>
+                                                                {% if t.done != False %}
+                                                                    <a href="/group/{{ t.gid }}/send/{{ t.id }}/{{ user.id }}/{{ t.done }}"
+                                                                       class="card-link">Отправить</a>
+                                                                {% else %}
+                                                                    <a href="/student/quiz/{{ t.id }}" target="_blank"
+                                                                       class="card-link">Пройти</a>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="store" style="display: none">
+                                <div class="card" style="margin-bottom: 100px">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Магазин</h5>
+                                        <p class="card-text">
+                                            Твой баланс: {{ user.balance }} QC
+                                            <br>Десятки товаров с быстрой доставкой
+                                        </p>
+                                        <hr>
+                                        <button onclick="showShop()" class="btn btn-primary" id="shopBut">
+                                            Посмотреть
+                                        </button>
+                                        <div style="display: none" id="shop">
+                                            <div class="row g-3 mt-3">
+                                                {% for s in shop %}
+                                                    <div class="col-md-3">
+                                                        <div class="card">
+                                                            <img src="{{ s.image }}" class="card-img-top" alt="...">
+                                                            <div class="card-body">
+                                                                <h5 class="card-title">{{ s.title }}</h5>
+                                                                <h2>{{ s.price }} QC</h2>
+                                                                <p class="card-text">
+                                                                    {{ s.text }}
+                                                                </p>
+                                                                {% if user.balance >= s.price %}
+                                                                    <button data-bs-toggle="modal"
+                                                                            data-bs-target="#shopModal{{ s.id }}"
+                                                                            class="btn btn-primary">Купить
+                                                                    </button>
+                                                                {% else %}
+                                                                    <button type="button" class="btn btn-secondary"
+                                                                            data-bs-container="body"
+                                                                            data-bs-toggle="popover"
+                                                                            data-bs-placement="top"
+                                                                            data-bs-content="Для покупки не хватает {{ s.price - user.balance }} QC">
+                                                                        Купить
+                                                                    </button>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="modal fade" id="shopModal{{ s.id }}" tabindex="-1"
+                                                         aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog modal-xl">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">
+                                                                        Покупка товара
+                                                                    </h1>
+                                                                    <button type="button" class="btn-close"
+                                                                            data-bs-dismiss="modal"
+                                                                            aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <form action="/shop/buy/{{ s.id }}" method="post">
+                                                                        <div class="row g-3">
+                                                                            <div class="col-md-8">
+                                                                                <div class="card">
+                                                                                    <div class="card-body">
+                                                                                        <h5 class="card-title">
+                                                                                            Информация
+                                                                                        </h5>
+                                                                                        <p class="card-text">
+                                                                                            Заполните все необходимые
+                                                                                            поля
+                                                                                        </p>
+                                                                                        <div class="row g-3">
+                                                                                            <div class="col-md-6">
+                                                                                                <label class="form-label">
+                                                                                                    Фамилия, Имя
+                                                                                                </label>
+                                                                                                <input type="text"
+                                                                                                       required
+                                                                                                       class="form-control mb-1"
+                                                                                                       name="name">
+                                                                                            </div>
+                                                                                            <div class="col-md-6">
+                                                                                                <label class="form-label">
+                                                                                                    Телефон
+                                                                                                </label>
+                                                                                                <input type="number"
+                                                                                                       required
+                                                                                                       class="form-control mb-1"
+                                                                                                       name="phone">
+                                                                                            </div>
+                                                                                            <div class="col-md-8">
+                                                                                                <label class="form-label">
+                                                                                                    Самовывоз
+                                                                                                </label>
+                                                                                                <select name="delivery"
+                                                                                                        class="form-select">
+                                                                                                    <option>
+                                                                                                        Школа 1561,
+                                                                                                        корпус
+                                                                                                        11
+                                                                                                    </option>
+                                                                                                </select>
+                                                                                            </div>
+                                                                                            <div class="col-md-4">
+                                                                                                <label class="form-label">
+                                                                                                    Класс
+                                                                                                </label>
+                                                                                                <input type="text"
+                                                                                                       required
+                                                                                                       class="form-control mb-1"
+                                                                                                       name="class">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                <div class="card">
+                                                                                    <div class="card-body">
+                                                                                        <h5 class="card-title">
+                                                                                            Оформление
+                                                                                        </h5>
+                                                                                        <p class="card-text">
+                                                                                            {{ s.title }}
+                                                                                        </p>
+                                                                                        <h3>{{ s.price }} QC</h3>
+                                                                                        <hr>
+                                                                                        <button type="submit"
+                                                                                                class="btn btn-primary">
+                                                                                            Оформить
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="orders" style="display: none">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Мои заказы</h5>
+                                        <p class="card-text">
+                                            Вот твои заказы за все время
+                                        </p>
+                                        <hr>
+                                        <button onclick="showOrders1()" class="btn btn-primary" id="ordersBut">
+                                            Посмотреть
+                                        </button>
+                                        <div class="list-group" id="ordersCard" style="display: none;">
+                                            {% for o in orders|reverse %}
+                                                {% if o.mail == user.mail %}
+                                                    <a class="list-group-item list-group-item-action">
+                                                        <div class="d-flex w-100 justify-content-between">
+                                                            <h5 class="mb-1">{{ o.title }}</h5>
+                                                            <small class="text-body-secondary">
+                                                <span class="badge rounded-pill text-bg-primary">
+                                                    {{ o.status }}
+                                                </span>
+                                                            </small>
+                                                        </div>
+                                                        <p class="mb-1">Стоимость: {{ o.price }} QC, Дата
+                                                            оформления: {{ o.date }}</p>
+                                                        <small class="text-body-secondary">Выдача: {{ o.delivery }}</small>
+                                                    </a>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="solveHistoryCard" style="display: none">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">История прохождений</h5>
+                                        <p class="card-text">
+                                            Тут вы сможете посмотреть какие квизы вы проходили и сколько за них получили
+                                        </p>
+                                        <hr>
+                                        <button onclick="showQuizes()" class="btn btn-primary" id="quizBut">
+                                            Посмотреть
+                                        </button>
+                                        <div class="row g-3 mt-3" id="quizCard" style="display: none;">
+                                            <div class="col-md-6">
+                                                <ul class="list-group">
+                                                    {% for q in user.quizes|reverse %}
+                                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                            <div class="ms-2 me-auto">
+                                                                <div class="fw-bold">{{ q.title }}</div>
+                                                                + {{ q.points }} QC / {{ q.all_points }}
+                                                            </div>
+                                                            <span class="badge bg-primary rounded-pill">ID {{ q.id }}</span>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="prepare" style="display: none">
+
+                            </div>
+                        </div>
+                        <script src="/static/alljs/social-focus.js" type="text/javascript"></script>
+                    </div>
+
+                {% elif auth == 0 %}
+                    <div class="modal modal-sheet position-static d-block p-4 py-md-5" tabindex="-1"
+                         role="dialog" id="modalSignin">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content rounded-4 shadow">
+                                <div class="modal-header p-5 pb-4 border-bottom-0">
+                                    <h1 class="fw-bold mb-0 fs-2">Вход</h1>
+                                </div>
+
+                                <div class="modal-body p-5 pt-0">
+                                    {% if code %}
+                                        <form action="/social/code" method="post">
+                                            <div class="form-floating mb-3">
+                                                <input name="code" type="number" class="form-control rounded-3"
+                                                       id="floatingInput"
+                                                       placeholder="123456">
+                                                <label for="floatingInput">Введите код</label>
+                                            </div>
+                                            <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" type="submit">
+                                                Войти
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <form action="/social/log" method="post">
+                                            <div class="form-floating mb-3">
+                                                <input name="mail" type="text" class="form-control rounded-3"
+                                                       placeholder="name@example.com">
+                                                <label for="floatingInput">Почта или уникальный код</label>
+                                            </div>
+                                            <button class="w-100 mb-0 btn btn-lg rounded-3 btn-primary" type="submit">
+                                                Войти
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mt-4" style="display: none">
+                        <div class="card-body">
+                            <h5 class="card-title">Вход в аккаунт</h5>
+                            {% if code %}
+                                <p class="card-text">
+                                    Введите код, отправленный на вашу почту {{ code }}. Если он не пришел в течение
+                                    минуты - проверьте папку <b>Спам</b>
+                                </p>
+                                <form action="/social/code" method="post">
+                                    <div class="row g-3">
+                                        <div class="col-md-12">
+                                            <label class="form-label">Код</label>
+                                            <input name="code" type="number" class="form-control">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-3">Войти</button>
+                                </form>
+                            {% else %}
+                                <p class="card-text">
+                                    Введите вашу почту
+                                </p>
+                                <form action="/social/log" method="post">
+                                    <div class="row g-3">
+                                        <div class="col-md-12">
+                                            <label class="form-label">Почта</label>
+                                            <input name="mail" type="email" class="form-control">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-3">Отправить</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% elif auth == 2 %}
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Спасибо за заказ!</h5>
+                            <p class="card-text">
+                                Вы оформили заказ №{{ order.id }} на {{ order.price }} QC. Он будет готов к выдаче на
+                                следующий день в {{ order.delivery }}
+                            </p>
+                            <p class="card-text mb-3">
+                                Уведомление о готовности придет вам на электронную почту {{ order.mail }}
+                            </p>
+                            <div class="progress" role="progressbar" aria-label="Success example" aria-valuenow="25"
+                                 aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar bg-primary" style="width: 25%">
+                                    Принят
+                                </div>
+                            </div>
+                            <hr>
+                            <a href="/social/my" class="btn btn-primary mt-3">
+                                Перейти к QuokkaSocial
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

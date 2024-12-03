@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Пройти квиз</title>
+    {% include "metrika.html" %}
+    {% block yandex_metrika %}{% endblock %}
+    <link href="/static/bs/bootstrap.min.css" rel="stylesheet">
+    <script src="/static/bs/bootstrap.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        @font-face {
+            font-family: "Fira Code";
+        }
+
+        .codefont {
+            font-family: "Fira Code", monospace;
+        }
+    </style>
+    {% if start == True %}
+        <style>
+            body {
+                background: rgb(82, 76, 176);
+                background: linear-gradient(90deg, rgba(82, 76, 176, 1) 0%, rgba(159, 159, 255, 1) 35%, rgba(127, 233, 255, 1) 100%);
+            }
+        </style>
+    {% elif start == False %}
+        <style>
+            body {
+                background-color: {{ quiz.color }};
+            }
+        </style>
+    {% elif start == "Final" %}
+        {% set pro = ((result.score|int / len|int) * 100)|round|int %}
+        {% if pro <= 40 %}
+            <style>
+                body {
+                    background: rgb(255, 40, 40);
+                    background: linear-gradient(90deg, rgba(255, 40, 40, 1) 0%, rgba(255, 198, 131, 1) 35%, rgba(252, 255, 153, 1) 100%);
+                }
+            </style>
+        {% elif pro >= 41 and pro <= 60 %}
+            <style>
+                body {
+                    background: rgb(255, 156, 1);
+                    background: linear-gradient(90deg, rgba(255, 156, 1, 1) 0%, rgba(255, 230, 131, 1) 42%, rgba(255, 251, 230, 1) 100%);
+                }
+            </style>
+        {% elif pro >= 61 %}
+            <style>
+                body {
+                    background: rgb(30, 239, 38);
+                    background: linear-gradient(90deg, rgba(30, 239, 38, 1) 0%, rgba(172, 255, 169, 1) 42%, rgba(37, 189, 122, 1) 100%);
+                }
+            </style>
+        {% endif %}
+    {% endif %}
+</head>
+<body id="body">
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+
+            <h1 style="visibility: collapse">Создание квиза</h1>
+
+            {% if color == None %}
+                <nav class="navbar fixed-top bg-body-tertiary">
+                    <div class="container-fluid">
+                        <a class="navbar-brand" href="/">КвоккаКвиз</a>
+                    </div>
+                </nav>
+            {% else %}
+                <nav class="navbar fixed-top bg-body-tertiary" style="background-color: {{ color }}">
+                    <div class="container-fluid">
+                        <a class="navbar-brand" href="/">КвоккаКвиз</a>
+                    </div>
+                </nav>
+            {% endif %}
+
+            {% if start == True %}
+                <div class="position-static d-block py-md-5" tabindex="-1"
+                     role="dialog" id="modalSignin">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content rounded-4 shadow" style="background-color: white">
+                            <div class="modal-header p-5 pb-4 border-bottom-0">
+                                <h1 class="fw-bold mb-0 fs-2">Пройти квиз</h1>
+                            </div>
+                            <div class="modal-body p-5 pt-0">
+                                <p class="lead">
+                                    {% if location.country == "Россия" or location.country == "Беларусь" or location.country == "Казахстан" %}
+                                        {% set access = 1 %}
+                                        У этого квиза "{{ quiz.title }}" всего {{ sklon }}
+                                    {% else %}
+                                        {% set access = 0 %}
+                                        Вы не находитесь в зоне действия КвоккаКвиз или у вас включен VPN. КвоккаКвиз
+                                        работает только в России, Беларуси и Казахстане.
+                                    {% endif %}
+                                </p>
+
+                                {% if access == 1 %}
+                                    <form action="/student/quiz/{{ id }}" method="post">
+                                        <div class="form-floating mb-3">
+                                            <input name="name" type="text" class="form-control rounded-3"
+                                                   placeholder="Иванов Иван" required>
+                                            <label for="floatingInput">Ваше имя</label>
+                                        </div>
+                                        {% if quiz.status == "Open" %}
+                                            {% if quiz_go == True %}
+                                                <a href="/student/quiz"
+                                                   class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                    Продолжить
+                                                </a>
+                                                <button type="submit" class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                    Пройти заново
+                                                </button>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                    Пройти
+                                                </button>
+                                            {% endif %}
+                                        {% else %}
+                                            <button type="submit" class="btn btn-primary btn-lg px-4 me-sm-3 mt-1"
+                                                    disabled>
+                                                Квиз закрыт
+                                            </button>
+                                        {% endif %}
+                                    </form>
+                                    </div>
+                                {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="position-static d-block mt-1 mb-5" tabindex="-1"
+                     role="dialog" id="modalTour">
+                    <div class="modal-dialog rounded-4 mt-0" role="document" style="background-color: white">
+                        <div class="modal-content rounded-4 shadow">
+                            <div class="modal-body p-5">
+                                <h2 class="fw-bold mb-4">
+                                    Подсказки
+                                </h2>
+
+                                <ul class="d-grid gap-4 my-5 list-unstyled small mb-0 mt-3">
+                                    <li class="d-flex gap-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                                             fill="currentColor"
+                                             class="bi bi-house flex-shrink-0 text-primary"
+                                             viewBox="0 0 16 16">
+                                            <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/>
+                                        </svg>
+                                        <div>
+                                            <h5 class="mb-0">Используйте Коннект</h5>
+                                            {% if soc != "" %}
+                                                {% if soc.premium != False %}
+                                                    У вас есть <b>Premium!</b> За этот квиз вы получите
+                                                    <b>до {{ quiz.test|length * 2 }}</b> печенек
+                                                {% else %}
+                                                    За прохождение этого квиза вы получите
+                                                    <b>до {{ quiz.test|length * 2 }}</b> печенек
+                                                {% endif %}
+                                            {% else %}
+                                                Создайте или войдите в свой аккаунт <b>КвоккаКоннект</b>, чтобы
+                                                получать призы!
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                    <li class="d-flex gap-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                                             fill="currentColor"
+                                             class="bi bi-house flex-shrink-0 text-primary"
+                                             viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd"
+                                                  d="M.5 6a.5.5 0 0 0-.488.608l1.652 7.434A2.5 2.5 0 0 0 4.104 16h5.792a2.5 2.5 0 0 0 2.44-1.958l.131-.59a3 3 0 0 0 1.3-5.854l.221-.99A.5.5 0 0 0 13.5 6zM13 12.5a2 2 0 0 1-.316-.025l.867-3.898A2.001 2.001 0 0 1 13 12.5M2.64 13.825 1.123 7h11.754l-1.517 6.825A1.5 1.5 0 0 1 9.896 15H4.104a1.5 1.5 0 0 1-1.464-1.175"/>
+                                            <path d="m4.4.8-.003.004-.014.019a4 4 0 0 0-.204.31 2 2 0 0 0-.141.267c-.026.06-.034.092-.037.103v.004a.6.6 0 0 0 .091.248c.075.133.178.272.308.445l.01.012c.118.158.26.347.37.543.112.2.22.455.22.745 0 .188-.065.368-.119.494a3 3 0 0 1-.202.388 5 5 0 0 1-.253.382l-.018.025-.005.008-.002.002A.5.5 0 0 1 3.6 4.2l.003-.004.014-.019a4 4 0 0 0 .204-.31 2 2 0 0 0 .141-.267c.026-.06.034-.092.037-.103a.6.6 0 0 0-.09-.252A4 4 0 0 0 3.6 2.8l-.01-.012a5 5 0 0 1-.37-.543A1.53 1.53 0 0 1 3 1.5c0-.188.065-.368.119-.494.059-.138.134-.274.202-.388a6 6 0 0 1 .253-.382l.025-.035A.5.5 0 0 1 4.4.8m3 0-.003.004-.014.019a4 4 0 0 0-.204.31 2 2 0 0 0-.141.267c-.026.06-.034.092-.037.103v.004a.6.6 0 0 0 .091.248c.075.133.178.272.308.445l.01.012c.118.158.26.347.37.543.112.2.22.455.22.745 0 .188-.065.368-.119.494a3 3 0 0 1-.202.388 5 5 0 0 1-.253.382l-.018.025-.005.008-.002.002A.5.5 0 0 1 6.6 4.2l.003-.004.014-.019a4 4 0 0 0 .204-.31 2 2 0 0 0 .141-.267c.026-.06.034-.092.037-.103a.6.6 0 0 0-.09-.252A4 4 0 0 0 6.6 2.8l-.01-.012a5 5 0 0 1-.37-.543A1.53 1.53 0 0 1 6 1.5c0-.188.065-.368.119-.494.059-.138.134-.274.202-.388a6 6 0 0 1 .253-.382l.025-.035A.5.5 0 0 1 7.4.8m3 0-.003.004-.014.019a4 4 0 0 0-.204.31 2 2 0 0 0-.141.267c-.026.06-.034.092-.037.103v.004a.6.6 0 0 0 .091.248c.075.133.178.272.308.445l.01.012c.118.158.26.347.37.543.112.2.22.455.22.745 0 .188-.065.368-.119.494a3 3 0 0 1-.202.388 5 5 0 0 1-.252.382l-.019.025-.005.008-.002.002A.5.5 0 0 1 9.6 4.2l.003-.004.014-.019a4 4 0 0 0 .204-.31 2 2 0 0 0 .141-.267c.026-.06.034-.092.037-.103a.6.6 0 0 0-.09-.252A4 4 0 0 0 9.6 2.8l-.01-.012a5 5 0 0 1-.37-.543A1.53 1.53 0 0 1 9 1.5c0-.188.065-.368.119-.494.059-.138.134-.274.202-.388a6 6 0 0 1 .253-.382l.025-.035A.5.5 0 0 1 10.4.8"/>
+                                        </svg>
+                                        <div>
+                                            <h5 class="mb-0">Немного мотивации</h5>
+                                            {{ pre_text }}
+                                        </div>
+                                    </li>
+                                    <li class="d-flex gap-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                                             fill="currentColor"
+                                             class="bi bi-house flex-shrink-0 text-primary"
+                                             viewBox="0 0 16 16">
+                                            <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5"/>
+                                            <path d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3"/>
+                                        </svg>
+                                        <div>
+                                            <h5 class="mb-0">Звук</h5>
+                                            <a onclick="soundTest()" style="cursor: pointer; color: #4d4de7">Проверьте
+                                                звук</a> - это
+                                            может пригодиться в квизах с аудио заданиями
+                                        </div>
+                                    </li>
+                                    <li class="d-flex gap-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                                             fill="currentColor"
+                                             class="bi bi-house flex-shrink-0 text-primary"
+                                             viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd"
+                                                  d="M11.096.644a2 2 0 0 1 2.791.036l1.433 1.433a2 2 0 0 1 .035 2.791l-.413.435-8.07 8.995a.5.5 0 0 1-.372.166h-3a.5.5 0 0 1-.234-.058l-.412.412A.5.5 0 0 1 2.5 15h-2a.5.5 0 0 1-.354-.854l1.412-1.412A.5.5 0 0 1 1.5 12.5v-3a.5.5 0 0 1 .166-.372l8.995-8.07zm-.115 1.47L2.727 9.52l3.753 3.753 7.406-8.254zm3.585 2.17.064-.068a1 1 0 0 0-.017-1.396L13.18 1.387a1 1 0 0 0-1.396-.018l-.068.065zM5.293 13.5 2.5 10.707v1.586L3.707 13.5z"/>
+                                        </svg>
+                                        <div>
+                                            <h5 class="mb-0">Проверяйте описание</h5>
+                                            {{ quiz.text }}
+                                        </div>
+                                    </li>
+                                    <li class="d-flex gap-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                                             fill="currentColor"
+                                             class="bi bi-house flex-shrink-0 text-primary"
+                                             viewBox="0 0 16 16">
+                                            <path d="M3.1.7a.5.5 0 0 1 .4-.2h9a.5.5 0 0 1 .4.2l2.976 3.974c.149.185.156.45.01.644L8.4 15.3a.5.5 0 0 1-.8 0L.1 5.3a.5.5 0 0 1 0-.6zm11.386 3.785-1.806-2.41-.776 2.413zm-3.633.004.961-2.989H4.186l.963 2.995zM5.47 5.495 8 13.366l2.532-7.876zm-1.371-.999-.78-2.422-1.818 2.425zM1.499 5.5l5.113 6.817-2.192-6.82zm7.889 6.817 5.123-6.83-2.928.002z"/>
+                                        </svg>
+                                        <div>
+                                            <h5 class="mb-0">Получение диплома</h5>
+                                            {% if quiz.settings.diploma == "on" %}
+                                                При наборе максимального бала вы сможете получить диплом
+                                            {% else %}
+                                                В данном квизе выключена функция выдачи диплома ученикам
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                    <li class="d-flex gap-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                                             fill="currentColor"
+                                             class="bi bi-house flex-shrink-0 text-primary"
+                                             viewBox="0 0 16 16">
+                                            <path d="M4 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4m2.625.547a3 3 0 0 0-5.584.953H.5a.5.5 0 0 0 0 1h.541A3 3 0 0 0 7 8a1 1 0 0 1 2 0 3 3 0 0 0 5.959.5h.541a.5.5 0 0 0 0-1h-.541a3 3 0 0 0-5.584-.953A2 2 0 0 0 8 6c-.532 0-1.016.208-1.375.547M14 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0"/>
+                                        </svg>
+                                        <div>
+                                            <h5 class="mb-0">Специальные возможности</h5>
+                                            {% if quiz.settings.special == "on" %}
+                                                В данном квизе включена возможность озвучивания заданий и увеличения
+                                                текста
+                                            {% else %}
+                                                В квизе отключены специальные возможности
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                    <li class="d-flex gap-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                                             fill="currentColor"
+                                             class="bi bi-house flex-shrink-0 text-primary"
+                                             viewBox="0 0 16 16">
+                                            <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
+                                        </svg>
+                                        <div>
+                                            <h5 class="mb-0">Результат</h5>
+                                            {% if quiz.settings.hide_res == None %}
+                                                После прохождения вы узнаете результат
+                                            {% else %}
+                                                Учитель скрыл показ результатов после прохождения
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div style="display: none">
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ quiz.title }}, {{ sklon }}</h5>
+                            <p class="card-text">
+                                Вы действительно хотите перейти к прохождению квиза?
+                            </p>
+                            {% if soc != "" %}
+                                {% if soc.premium != False %}
+                                    <div class="alert alert-secondary" role="alert">
+                                        У вас есть <b>Premium!</b> За этот квиз вы получите
+                                        <b>до {{ quiz.test|length * 2 }}</b> QuokkaCoin
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-warning" role="alert">
+                                        За прохождение этого квиза вы получите <b>до {{ quiz.test|length * 2 }}</b>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="alert alert-warning" role="alert">
+                                    Создайте или войдите в свой аккаунт <b>QuokkaSocial</b>, чтобы получать призы!
+                                </div>
+                            {% endif %}
+                            <div class="alert alert-light" role="alert">
+                                {{ quiz.text }}
+                            </div>
+                            <hr>
+                            <button onclick="soundTest()" type="button" class="btn btn-outline-primary">
+                                Проверка звука
+                            </button>
+                            <hr>
+                            <form action="/student/quiz/{{ id }}" method="post">
+                                <input name="name" type="text" class="form-control" placeholder="Введите ваше имя">
+                                {% if quiz.status == "Open" %}
+                                    <button type="submit" class="btn btn-primary mt-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor"
+                                             class="bi bi-chevron-double-right mb-1 mx-1" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd"
+                                                  d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708"/>
+                                            <path fill-rule="evenodd"
+                                                  d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708"/>
+                                        </svg>
+                                        Пройти
+                                    </button>
+                                    <a href="/" type="button" class="btn btn-primary mt-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-back mb-1 mx-1" viewBox="0 0 16 16">
+                                            <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+                                        </svg>
+                                        Главное меню
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-primary mt-3" disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor"
+                                             class="bi bi-sign-stop-fill mb-1 mx-1" viewBox="0 0 16 16">
+                                            <path d="M10.371 8.277v-.553c0-.827-.422-1.234-.987-1.234-.572 0-.99.407-.99 1.234v.553c0 .83.418 1.237.99 1.237.565 0 .987-.408.987-1.237m2.586-.24c.463 0 .735-.272.735-.744s-.272-.741-.735-.741h-.774v1.485z"/>
+                                            <path d="M4.893 0a.5.5 0 0 0-.353.146L.146 4.54A.5.5 0 0 0 0 4.893v6.214a.5.5 0 0 0 .146.353l4.394 4.394a.5.5 0 0 0 .353.146h6.214a.5.5 0 0 0 .353-.146l4.394-4.394a.5.5 0 0 0 .146-.353V4.893a.5.5 0 0 0-.146-.353L11.46.146A.5.5 0 0 0 11.107 0zM3.16 10.08c-.931 0-1.447-.493-1.494-1.132h.653c.065.346.396.583.891.583.524 0 .83-.246.83-.62 0-.303-.203-.467-.637-.572l-.656-.164c-.61-.147-.978-.51-.978-1.078 0-.706.597-1.184 1.444-1.184.853 0 1.386.475 1.436 1.087h-.645c-.064-.32-.352-.542-.797-.542-.472 0-.77.246-.77.6 0 .261.196.437.553.522l.654.161c.673.164 1.06.487 1.06 1.11 0 .736-.574 1.228-1.544 1.228Zm3.427-3.51V10h-.665V6.57H4.753V6h3.006v.568H6.587Zm4.458 1.16v.544c0 1.131-.636 1.805-1.661 1.805-1.026 0-1.664-.674-1.664-1.805V7.73c0-1.136.638-1.807 1.664-1.807s1.66.674 1.66 1.807ZM11.52 6h1.535c.82 0 1.316.55 1.316 1.292 0 .747-.501 1.289-1.321 1.289h-.865V10h-.665V6.001Z"/>
+                                        </svg>
+                                        Закрыто
+                                    </button>
+                                    <a href="/" type="button" class="btn btn-primary mt-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor"
+                                             class="bi bi-back mb-1 mx-1" viewBox="0 0 16 16">
+                                            <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+                                        </svg>
+                                        Главное меню
+                                    </a>
+                                    <div class="alert alert-warning mb-1 mt-3" role="alert">
+                                        В настоящее время данный квиз закрыт. Пожалуйста, подождите, когда он откроется.
+                                    </div>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card border-primary mb-3 mt-3 rounded" style="border-width: 5px">
+                        <div class="card-body">
+                            <center>
+                                <h5 class="card-title mt-1">{{ pre_text }}</h5>
+                            </center>
+                        </div>
+                    </div>
+
+                    {% if quiz.protect == True %}
+                        <div class="card mb-3" style="background-color: indianred; color: white">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    QuokkaQuiz Protect
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                         class="bi bi-shield-fill-exclamation mb-1 mx-1" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                              d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.465 9.99a11.8 11.8 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7 7 0 0 0 1.048-.625 11.8 11.8 0 0 0 2.517-2.453c1.678-2.195 3.061-5.513 2.465-9.99a1.54 1.54 0 0 0-1.044-1.263 63 63 0 0 0-2.887-.87C9.843.266 8.69 0 8 0m-.55 8.502L7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0M8.002 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
+                                    </svg>
+                                </h5>
+                                <p class="card-text">
+                                    В этом квизе включена защита от списывания. Если будут замечены попытки списывания -
+                                    прохождение приостанавливается
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <script type="module">
+                    import devtools from "../../static/alljs/index.js";
+
+                    if ("{{ quiz.protect}}" === "True") {
+
+                        document.ondragstart = prohibit;
+                        document.onselectstart = prohibit;
+                        document.oncontextmenu = prohibit;
+
+                        function prohibit() {
+                            return false;
+                        }
+
+                        document.querySelector('input').addEventListener('paste', function (e) {
+                            e.preventDefault();
+                        });
+
+                        document.querySelector('input').addEventListener('copy', function (e) {
+                            e.preventDefault();
+                        });
+
+                        setInterval(function () {
+                            console.log('Is DevTools open:', devtools.isOpen);
+
+                            console.log('DevTools orientation:', devtools.orientation);
+
+                            window.addEventListener('devtoolschange', event => {
+                                console.log('Is DevTools open:', event.detail.isOpen);
+                                console.log('DevTools orientation:', event.detail.orientation);
+                                if (event.detail.isOpen) {
+                                    document.location.href = '/cheating/detect'
+                                }
+                            });
+                        }, 1000)
+
+                    }
+                </script>
+
+            {% elif start == False %}
+                {% for q in quiz.test %}
+                    {% if (loop.index0 + 1) == num|int %}
+                        <!--div class="progress mt-5" role="progressbar" aria-label="Basic example" aria-valuenow="75"
+                             aria-valuemin="0" aria-valuemax="100" id="progress">
+                            <div class="progress-bar"
+                                 style="width: {{ ((num|int / quiz.test|length) * 100) | round | int }}%;"></div>
+                        </div -->
+
+                        <div class="position-static d-block py-md-5 mt-5" tabindex="-1"
+                             role="dialog" id="modalSignin">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content rounded-4 shadow" style="background-color: white">
+                                    <div class="modal-header p-5 pb-4 border-bottom-0">
+                                        <h1 class="fw-bold mb-0 fs-2">
+                                            {{ loop.index0 + 1 }} / {{ quiz.test|length }}
+                                        </h1>
+                                    </div>
+                                    <div class="modal-body p-5 pt-0" style="margin-top: -15px">
+                                        {% if q.image == None or q.image == "None" %}
+                                        {% else %}
+                                            <img src="{{ q.image }}" class="img-fluid rounded-4" style="width: 50%"
+                                                 alt="Изображение">
+                                        {% endif %}
+                                        <div class="lead" id="solveTextDiv">
+                                            <p id="solveText" class="lead">
+                                                {{ q.text|safe }}
+                                            </p>
+                                        </div>
+
+                                        {% if q.type == "text" or q.type == "cross" %}
+                                            <form action="/student/quiz/answer" method="post">
+                                                <div class="form-floating mb-3">
+                                                    <input name="ans" type="text" class="form-control rounded-3"
+                                                           placeholder="Иванов Иван" required>
+                                                    <label for="floatingInput">Ваш ответ</label>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                    Ответить
+                                                </button>
+                                                {% if quiz.settings.special == "on" %}
+                                                    <hr>
+                                                    <button onclick="saySolveText('{{ q.text|safe }}')"
+                                                            type="button"
+                                                            class="btn btn-outline-primary btn-lg me-sm-1 mt-1">
+                                                        Произнести
+                                                    </button>
+                                                    <button onclick="resizeText()" type="button"
+                                                            class="btn btn-outline-primary btn-lg me-sm-1 mt-1">
+                                                        Увеличить текст
+                                                    </button>
+                                                {% endif %}
+                                            </form>
+                                        {% elif q.type == "slider" %}
+                                            <form action="/student/quiz/answer" method="post">
+                                                <input name="ans" id="quizSlider" onchange="getSliderVal()" type="range"
+                                                       class="form-range mb-3" min="{{ q.slider.minval }}"
+                                                       max="{{ q.slider.maxval }}" step="{{ q.slider.step }}">
+                                                <p class="lead" id="quizSliderVal"></p>
+                                                <button type="submit"
+                                                        class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                    Ответить
+                                                </button>
+                                                {% if quiz.settings.special == "on" %}
+                                                    <hr>
+                                                    <button onclick="saySolveText('{{ q.text|safe }}')"
+                                                            type="button"
+                                                            class="btn btn-outline-primary btn-lg me-sm-1 mt-1">
+                                                        Произнести
+                                                    </button>
+                                                    <button onclick="resizeText()" type="button"
+                                                            class="btn btn-outline-primary btn-lg me-sm-1 mt-1">
+                                                        Увеличить текст
+                                                    </button>
+                                                {% endif %}
+                                            </form>
+                                        {% elif q.type == "audio" %}
+                                            <form action="/student/quiz/answer" method="post">
+                                                <div class="form-floating mb-3">
+                                                    <input name="ans" type="text" class="form-control rounded-3"
+                                                           placeholder="Иванов Иван" required>
+                                                    <label for="floatingInput">Ваш ответ</label>
+                                                </div>
+                                                <button id="sendButton" type="submit"
+                                                        class="btn btn-primary btn-lg px-4 me-sm-3 mt-1"
+                                                        style="display: none">
+                                                    Ответить
+                                                </button>
+                                                <button type="button" onclick="audioTaskSolve()" id="sayButton"
+                                                        class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                    Прослушать аудио
+                                                </button>
+
+                                                {% if quiz.settings.special == "on" %}
+                                                    <hr>
+                                                    <button onclick="saySolveText('{{ q.text|safe }}')"
+                                                            type="button"
+                                                            class="btn btn-outline-primary btn-lg me-sm-1 mt-1">
+                                                        Произнести
+                                                    </button>
+                                                    <button onclick="resizeText()" type="button"
+                                                            class="btn btn-outline-primary btn-lg me-sm-1 mt-1">
+                                                        Увеличить текст
+                                                    </button>
+                                                {% endif %}
+                                            </form>
+                                        {% elif q.type == "choice" %}
+                                            <form action="/student/quiz/answer" method="post">
+                                                {% for a in q.answer|shuffle %}
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="ans"
+                                                               value="{{ a.answer }}">
+                                                        <label class="form-check-label lead">
+                                                            {{ a.answer }}
+                                                        </label>
+                                                    </div>
+                                                {% endfor %}
+                                                <button type="submit" class="btn btn-primary btn-lg px-4 me-sm-3 mt-4">
+                                                    Ответить
+                                                </button>
+                                                {% if quiz.settings.special == "on" %}
+                                                    <button onclick="saySolveText('{{ q.text|safe }}')"
+                                                            type="button"
+                                                            class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                        Произнести
+                                                    </button>
+                                                    <button onclick="resizeText()" type="button"
+                                                            class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                        Увеличить текст
+                                                    </button>
+                                                {% endif %}
+                                            </form>
+                                        {% elif q.type == "after_check" %}
+                                            <!--div class="alert alert-warning" role="alert">
+                                                Результат будет доступен только после проверки учителем
+                                            </div-->
+                                            <form action="/student/quiz/answer" method="post">
+                                                <div class="form-floating mb-3">
+                                                    <textarea name="ans" class="form-control rounded-3" rows="5"
+                                                              placeholder="Введите ответ" required
+                                                              style="height: 15%"></textarea>
+                                                    <label for="floatingInput">Ваш ответ</label>
+                                                </div>
+
+                                                <button type="submit" class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                    Ответить
+                                                </button>
+                                                {% if quiz.settings.special == "on" %}
+                                                    <button onclick="saySolveText('{{ q.text|safe }}')"
+                                                            type="button"
+                                                            class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                        Произнести
+                                                    </button>
+                                                    <button onclick="resizeText()" type="button"
+                                                            class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                        Увеличить текст
+                                                    </button>
+                                                {% endif %}
+                                            </form>
+                                        {% elif q.type == "python_code" %}
+                                            <div class="card text-bg-light mb-3">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Python</h5>
+                                                    Ввод:
+                                                    <div class="card">
+                                                        <div class="card-body codefont">
+                                                            {{ q.checkpoints[0].input }}
+                                                        </div>
+                                                    </div>
+                                                    {% if '\n' in q.checkpoints[0].input %}
+                                                        <div class="form-text mb-3">
+                                                            Эти данные вводятся с новой строчки
+                                                        </div>
+                                                    {% endif %}
+                                                    Вывод:
+                                                    <div class="card">
+                                                        <div class="card-body codefont">
+                                                            {{ q.checkpoints[0].output }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <form action="/student/quiz/answer" method="post">
+                                        <textarea id="inputText" name="ans"
+                                                  class="form-control codefont" rows="5"
+                                                  placeholder="# Enter your Python-code here!"></textarea>
+                                                <button type="submit" class="btn btn-primary btn-lg px-4 me-sm-3 mt-4">
+                                                    Ответить
+                                                </button>
+                                                {% if quiz.settings.special == "on" %}
+                                                    <button onclick="saySolveText('{{ q.text|safe }}')"
+                                                            type="button"
+                                                            class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                        Произнести
+                                                    </button>
+                                                    <button onclick="resizeText()" type="button"
+                                                            class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                        Увеличить текст
+                                                    </button>
+                                                {% endif %}
+                                            </form>
+                                        {% endif %}
+
+                                        <form action="/student/quiz/{{ id }}" method="post" style="display: none">
+                                            <div class="form-floating mb-3">
+                                                <input name="name" type="text" class="form-control rounded-3"
+                                                       placeholder="Иванов Иван" required>
+                                                <label for="floatingInput">Ваше имя</label>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                                Пройти
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mt-4" style="display: none;">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ loop.index0 + 1 }}
+                                    / {{ quiz.test|length }}</h5>
+                                {% if q.image == None or q.image == "None" %}
+                                {% else %}
+                                    <img src="{{ q.image }}" class="img-fluid" alt="Изображение">
+                                {% endif %}
+                                <p id="solveText111" class="card-text">
+                                    {{ q.text|safe }}
+                                </p>
+                                {% if premium == 1 %}
+                                    <div class="alert alert-secondary" role="alert">
+                                        У вас есть <b>Premium-право</b> один раз в квизе сделать 100%
+                                        верный ответ. Для
+                                        этого напишите в поле ввода ответа <b>ПОДСКАЗКА</b>
+                                    </div>
+                                {% endif %}
+                                {% if quiz.settings.special == "on" %}
+                                    <div id="help" class="mb-3">
+                                        <hr>
+                                        <button onclick="saySolveText('{{ q.text|safe }}')"
+                                                type="button"
+                                                class="btn btn-outline-primary">
+                                            Произнести
+                                        </button>
+                                        <button onclick="resizeText()" type="button"
+                                                class="btn btn-outline-primary">
+                                            Увеличить текст
+                                        </button>
+                                    </div>
+                                {% endif %}
+                                {% if q.type == "text" or q.type == "cross" %}
+                                    <form action="/student/quiz/answer" method="post">
+                                        <textarea name="ans" class="form-control" rows="3"
+                                                  placeholder="Введите ответ"></textarea>
+                                        <button type="submit" class="btn btn-primary mt-3">Ответить
+                                        </button>
+                                    </form>
+                                {% elif q.type == "choice" %}
+                                    <form action="/student/quiz/answer" method="post">
+                                        {% for a in q.answer|shuffle %}
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="ans"
+                                                       value="{{ a.answer }}">
+                                                <label class="form-check-label">
+                                                    {{ a.answer }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                        <button type="submit" class="btn btn-primary mt-3">Ответить
+                                        </button>
+                                    </form>
+                                {% elif q.type == "after_check" %}
+                                    <div class="alert alert-warning" role="alert">
+                                        Результат будет доступен только после проверки учителем
+                                    </div>
+                                    <form action="/student/quiz/answer" method="post">
+                                        <textarea oninput="" name="ans" class="form-control" rows="3"
+                                                  placeholder="Введите ответ"></textarea>
+                                        <button type="submit" class="btn btn-primary mt-3">Ответить
+                                        </button>
+                                    </form>
+                                {% elif q.type == "python_code" %}
+                                    <div class="card text-bg-light mb-3">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Python</h5>
+                                            Ввод:
+                                            <div class="card">
+                                                <div class="card-body codefont">
+                                                    {{ q.checkpoints[0].input }}
+                                                </div>
+                                            </div>
+                                            {% if '\n' in q.checkpoints[0].input %}
+                                                <div class="form-text mb-3">
+                                                    Эти данные вводятся с новой строчки
+                                                </div>
+                                            {% endif %}
+                                            Вывод:
+                                            <div class="card">
+                                                <div class="card-body codefont">
+                                                    {{ q.checkpoints[0].output }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <form action="/student/quiz/answer" method="post">
+                                        <textarea id="inputText" name="ans"
+                                                  class="form-control codefont" rows="5"
+                                                  placeholder="# Enter your Python-code here!"></textarea>
+                                        <button type="submit" class="btn btn-primary mt-3">Ответить
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    {% endif %}
+                {% endfor %}
+            {% elif start == "Final" %}
+
+                <div class="position-static d-block py-md-3" tabindex="-1"
+                     role="dialog" id="modalSignin">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content rounded-4 shadow" style="background-color: white">
+                            <div class="modal-header p-5 pb-4 border-bottom-0">
+                                <h1 class="fw-bold mb-0 fs-2">Квиз пройден</h1>
+                            </div>
+                            <div class="modal-body p-5 pt-0">
+                                {% if quiz.settings.hide_res == None %}
+                                    <p class="lead mb-4">
+                                        Результат выполнения -
+                                        <b>{{ ((result.score|int / len|int) * 100)|round|int }}%</b>
+                                        ({{ result.score }} / {{ len }})
+                                    </p>
+                                {% else %}
+                                    <p class="lead mb-4">
+                                        Учитель скрыл результаты квиза
+                                    </p>
+                                {% endif %}
+
+                                <a href="/student/quiz/{{ id }}" type="button"
+                                   class="btn btn-primary btn-lg px-4 me-sm-3 mt-1">
+                                    В главное меню
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if pro >= 81 and pro <= 100 %}
+                    {% set rusval = 5 %}
+                    {% set text = "Вы отлично разбираетесь в теме" %}
+                {% elif pro >= 63 and pro <= 80 %}
+                    {% set rusval = 4 %}
+                    {% set text = "Вы неплохо разбираетесь в теме" %}
+                {% elif pro >= 50 and pro <= 62 %}
+                    {% set rusval = 3 %}
+                    {% set text = "Вы знаете тему удовлетворительно" %}
+                {% elif pro >= 0 and pro <= 49 %}
+                    {% set rusval = 2 %}
+                    {% set text = "Ваших знаний недостаточно, необходима пересдача" %}
+                {% endif %}
+
+                {% if pro == 100 %}
+                    {% set usval = "A+" %}
+                {% elif pro >= 90 and pro <= 99 %}
+                    {% set usval = "A" %}
+                {% elif pro >= 80 and pro <= 89 %}
+                    {% set usval = "B" %}
+                {% elif pro >= 70 and pro <= 79 %}
+                    {% set usval = "C" %}
+                {% elif pro >= 60 and pro <= 69 %}
+                    {% set usval = "D" %}
+                {% elif pro >= 0 and pro <= 59 %}
+                    {% set usval = "F" %}
+                {% endif %}
+
+                {% if quiz.settings.hide_res == None %}
+                    <div class="position-static d-block py-md-4" tabindex="-1"
+                         role="dialog" id="modalTour">
+                        <div class="modal-dialog rounded-4 mt-0" role="document" style="background-color: white">
+                            <div class="modal-content rounded-4 shadow">
+                                <div class="modal-body p-5">
+                                    <h2 class="fw-bold mb-4">
+                                        {{ text }}
+                                    </h2>
+
+                                    <ul class="d-grid gap-4 my-5 list-unstyled small mb-0 mt-3">
+                                        <li class="d-flex gap-4">
+                                            <img src="https://flagicons.lipis.dev/flags/4x3/ru.svg" width="48"
+                                                 height="48"/>
+                                            <div>
+                                                <h5 class="mb-0">Российская оценка</h5>
+                                                {{ rusval }}
+                                            </div>
+                                        </li>
+                                        <li class="d-flex gap-4">
+                                            <img src="https://flagicons.lipis.dev/flags/4x3/us.svg" width="48"
+                                                 height="48"/>
+                                            <div>
+                                                <h5 class="mb-0">Американская оценка</h5>
+                                                {{ usval }}
+                                            </div>
+                                        </li>
+                                        <li class="d-flex gap-4">
+                                            <img src="https://flagicons.lipis.dev/flags/4x3/cn.svg" width="48"
+                                                 height="48"/>
+                                            <div>
+                                                <h5 class="mb-0">Китайская оценка</h5>
+                                                {{ pro }}
+                                            </div>
+                                        </li>
+                                        <li class="d-flex gap-4">
+                                            <img src="https://flagicons.lipis.dev/flags/4x3/by.svg" width="48"
+                                                 height="48"/>
+                                            <div>
+                                                <h5 class="mb-0">Белорусская оценка</h5>
+                                                {{ (pro / 10)|round|int }}
+                                            </div>
+                                        </li>
+                                        <li class="d-flex gap-4">
+                                            <img src="https://flagicons.lipis.dev/flags/4x3/fr.svg" width="48"
+                                                 height="48"/>
+                                            <div>
+                                                <h5 class="mb-0">Французская оценка</h5>
+                                                {{ (pro / 5)|round|int }}
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+
+                <div class="position-static d-block mt-1 mb-5" tabindex="-1"
+                     role="dialog" id="modalTour">
+                    <div class="modal-dialog rounded-4 mt-0" role="document" style="background-color: white">
+                        <div class="modal-content rounded-4 shadow">
+                            <div class="modal-body p-5">
+                                <h2 class="fw-bold mb-4">
+                                    Подсказки
+                                </h2>
+
+                                <ul class="d-grid gap-4 my-5 list-unstyled small mb-0 mt-3">
+                                    <li class="d-flex gap-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                                             fill="currentColor"
+                                             class="bi bi-house flex-shrink-0 text-primary"
+                                             viewBox="0 0 16 16">
+                                            <path d="M11.5 6.027a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m-1.5 1.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1m2.5-.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m-1.5 1.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1m-6.5-3h1v1h1v1h-1v1h-1v-1h-1v-1h1z"/>
+                                            <path d="M3.051 3.26a.5.5 0 0 1 .354-.613l1.932-.518a.5.5 0 0 1 .62.39c.655-.079 1.35-.117 2.043-.117.72 0 1.443.041 2.12.126a.5.5 0 0 1 .622-.399l1.932.518a.5.5 0 0 1 .306.729q.211.136.373.297c.408.408.78 1.05 1.095 1.772.32.733.599 1.591.805 2.466s.34 1.78.364 2.606c.024.816-.059 1.602-.328 2.21a1.42 1.42 0 0 1-1.445.83c-.636-.067-1.115-.394-1.513-.773-.245-.232-.496-.526-.739-.808-.126-.148-.25-.292-.368-.423-.728-.804-1.597-1.527-3.224-1.527s-2.496.723-3.224 1.527c-.119.131-.242.275-.368.423-.243.282-.494.575-.739.808-.398.38-.877.706-1.513.773a1.42 1.42 0 0 1-1.445-.83c-.27-.608-.352-1.395-.329-2.21.024-.826.16-1.73.365-2.606.206-.875.486-1.733.805-2.466.315-.722.687-1.364 1.094-1.772a2.3 2.3 0 0 1 .433-.335l-.028-.079zm2.036.412c-.877.185-1.469.443-1.733.708-.276.276-.587.783-.885 1.465a14 14 0 0 0-.748 2.295 12.4 12.4 0 0 0-.339 2.406c-.022.755.062 1.368.243 1.776a.42.42 0 0 0 .426.24c.327-.034.61-.199.929-.502.212-.202.4-.423.615-.674.133-.156.276-.323.44-.504C4.861 9.969 5.978 9.027 8 9.027s3.139.942 3.965 1.855c.164.181.307.348.44.504.214.251.403.472.615.674.318.303.601.468.929.503a.42.42 0 0 0 .426-.241c.18-.408.265-1.02.243-1.776a12.4 12.4 0 0 0-.339-2.406 14 14 0 0 0-.748-2.295c-.298-.682-.61-1.19-.885-1.465-.264-.265-.856-.523-1.733-.708-.85-.179-1.877-.27-2.913-.27s-2.063.091-2.913.27"/>
+                                        </svg>
+                                        <div>
+                                            <h5 class="mb-0">Используйте Коннект</h5>
+                                            {% if socuser != "" %}
+                                                {% if socuser.premium != False %}
+                                                    У вас есть <b>Premium</b>, поэтому вы получили {{ points }} QC
+                                                    за этот квиз
+                                                {% else %}
+                                                    За прохождение этого квиза вы получили {{ points }} QC.
+                                                {% endif %}
+                                            {% else %}
+                                                Не забывайте входить в свой аккаунт <b>QuokkaSocial</b>, чтобы
+                                                получать призы!
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                    <li class="d-flex gap-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                                             fill="currentColor"
+                                             class="bi bi-house flex-shrink-0 text-primary"
+                                             viewBox="0 0 16 16">
+                                            <path d="m.5 3 .04.87a2 2 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2m5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19q-.362.002-.683.12L1.5 2.98a1 1 0 0 1 1-.98z"/>
+                                            <path d="M15.854 10.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.707 0l-1.5-1.5a.5.5 0 0 1 .707-.708l1.146 1.147 2.646-2.647a.5.5 0 0 1 .708 0"/>
+                                        </svg>
+                                        <div>
+                                            <h5 class="mb-0">Проверка заданий</h5>
+                                            {% if after_ask == 0 %}
+                                                Все задания были автоматически проверены, финальная оценка выставлена
+                                            {% else %}
+                                                Еще {{ after_ask }} заданий на проверке у учителя. Вы можете получить
+                                                результат сразу, как он будет проверен -
+                                                <a data-bs-toggle="modal" data-bs-target="#notiModal"
+                                                   style="cursor: pointer; color: #4d4de7">
+                                                    оставьте почту
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                    <li class="d-flex gap-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                                             fill="currentColor"
+                                             class="bi bi-house flex-shrink-0 text-primary"
+                                             viewBox="0 0 16 16">
+                                            <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5"/>
+                                            <path d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3"/>
+                                        </svg>
+                                        <div>
+                                            <h5 class="mb-0">Апелляция</h5>
+                                            Если вы несогласны со своей оценкой или во время квиза произошел сбой?
+                                            Оформите <a style="cursor: pointer; color: #4d4de7" data-bs-toggle="modal"
+                                                        data-bs-target="#supportModal">заявку</a> и получите быстрый
+                                            ответ
+                                        </div>
+                                    </li>
+                                    <li class="d-flex gap-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                                             fill="currentColor"
+                                             class="bi bi-house flex-shrink-0 text-primary"
+                                             viewBox="0 0 16 16">
+                                            <path d="M3.1.7a.5.5 0 0 1 .4-.2h9a.5.5 0 0 1 .4.2l2.976 3.974c.149.185.156.45.01.644L8.4 15.3a.5.5 0 0 1-.8 0L.1 5.3a.5.5 0 0 1 0-.6zm11.386 3.785-1.806-2.41-.776 2.413zm-3.633.004.961-2.989H4.186l.963 2.995zM5.47 5.495 8 13.366l2.532-7.876zm-1.371-.999-.78-2.422-1.818 2.425zM1.499 5.5l5.113 6.817-2.192-6.82zm7.889 6.817 5.123-6.83-2.928.002z"/>
+                                        </svg>
+                                        <div>
+                                            <h5 class="mb-0">Получение диплома</h5>
+                                            {% if quiz.settings.diploma == "on" %}
+                                                {% if result.score|int == len|int %}
+                                                    Вы успешно выполнили все задания и можете получить диплом по
+                                                    <a style="cursor: pointer; color: #4d4de7" data-bs-toggle="modal"
+                                                       data-bs-target="#diplomaModal">клику</a> за несколько секунд
+                                                {% else %}
+                                                    Вы не набрали достаточное количество баллов для получения диплома.
+                                                    Не переживайте, в следующий раз у вас все обязательно получиться
+                                                {% endif %}
+                                            {% else %}
+                                                В данном квизе выключена функция выдачи диплома ученикам
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div style="display: none">
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Вы прошли квиз!</h5>
+                            <p class="card-text">
+                                Спасибо за прохождение!
+                                {% if quiz.settings.hide_res == None %}
+                                    Ваш результат - <b>{{ result.score }} из {{ len }}</b>
+                                {% endif %}
+                            </p>
+                            {% if after_ask == 0 %}
+                                <a href="/student/quiz/{{ id }}" type="submit" class="btn btn-primary mb-0">
+                                    В главное меню
+                                </a>
+                            {% else %}
+                                <p>
+                                    Еще {{ after_ask }} ответов на проверке у учителя. Вы можете получить результат
+                                    сразу,
+                                    как он будет проверен - оставив вашу электронную почту
+                                </p>
+                                <form action="/remember/mail/{{ id }}/{{ stud }}" method="post" class="mt-3">
+                                    <input name="mail" type="email" class="form-control"
+                                           placeholder="Введите вашу почту">
+                                    <button type="submit" class="btn btn-primary mt-3">
+                                        Сохранить
+                                    </button>
+                                    <a href="/student/quiz/{{ id }}" type="submit" class="btn btn-primary mt-1">
+                                        В главное меню
+                                    </a>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card text-bg-primary mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Вы несогласны с оценкой? Есть вопросы по заданиям?</h5>
+                            <p class="card-text">
+                                Если у вас возникли любые вопросы по квизу - от содержания до технической реализации -
+                                пожалуйста, задайте их. Вы получите ответ в течении одного дня.
+                            </p>
+                            <button data-bs-toggle="modal" data-bs-target="#supportModal" class="btn btn-light">
+                                Задать вопрос
+                            </button>
+                        </div>
+                    </div>
+                    {% if quiz.settings.diploma == "on" %}
+                        {% if result.score|int == len|int %}
+                            <div class="card mb-3 mt-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Получение диплома</h5>
+                                    <p class="card-text">
+                                        Введите ваше имя, оно будет на дипломе
+                                    </p>
+                                    <form action="/diploma/create" method="post">
+                                        <label class="form-label">Имя</label>
+                                        <input type="text" class="form-control mb-1" name="user_name">
+
+                                        <label class="form-label">Название квиза</label>
+                                        <input type="text" class="form-control" name="quiz_name"
+                                               value="{{ quiz.title }}" readonly>
+                                        <button type="submit" class="btn btn-primary mt-3">Создать</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if socuser != "" %}
+                        {% if socuser.premium != False %}
+                            <div class="alert alert-secondary mt-3" role="alert">
+                                У вас есть <b>Premium</b>, поэтому вы получили {{ points }} QC за этот квиз
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning mt-3" role="alert">
+                                За прохождение этого квиза вы получили {{ points }} QC.
+                                <br>Оформите QuokkaOne и получайте в 2 раза больше QC!
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-warning mt-3" role="alert">
+                            Создайте или войдите в свой аккаунт <b>QuokkaSocial</b>, чтобы получать призы!
+                        </div>
+                    {% endif %}
+                </div>
+
+
+            {% elif start == "SuccessMail" %}
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Отлично!</h5>
+                        <p class="card-text">
+                            Теперь вы получите уведомление после того, как ваш квиз проверят!
+                        </p>
+                        <a href="/student/quiz/{{ id }}" type="submit" class="btn btn-primary">
+                            В главное меню
+                        </a>
+                    </div>
+                </div>
+            {% elif start == "QuizClose" %}
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">К сожалению, учитель закрыл квиз!</h5>
+                        <p class="card-text">
+                            {% if quiz.settings.hide_res == None %}
+                                Ваш текущий результат сохранился - <b>{{ result.score }} из {{ len }}</b>
+                            {% else %}
+                                Ваш текущий результат сохранился.
+                            {% endif %}
+                        </p>
+                        <a href="/student/quiz/{{ id }}" type="submit" class="btn btn-primary">
+                            В главное меню
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+
+
+            <div class="modal fade" id="supportModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Служба поддержки</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-warning" role="alert">
+                                Не забудьте указать ваше имя, время прохождения и номер квиза. Так специалист сможет
+                                лучше помочь.
+                            </div>
+                            <form action="/support/student" method="post">
+                                <label class="form-label">С чем нужна помощь?</label>
+                                <textarea class="form-control" name="text" placeholder="Опишите все очень подробно"
+                                          rows="3"></textarea>
+
+                                <label class="form-label mt-3">Введите вашу почту</label>
+                                <input name="mail" type="email" class="form-control"/>
+
+                                <button class="btn btn-primary mt-3" type="submit">
+                                    Отправить
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="notiModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Рассылка</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-warning" role="alert">
+                                Укажите почту, чтобы получить уведомление после прохождения квиза
+                            </div>
+                            <form action="/remember/mail/{{ id }}/{{ stud }}" method="post" class="mt-3">
+                                <input name="mail" type="email" class="form-control"
+                                       placeholder="Введите вашу почту">
+                                <button type="submit" class="btn btn-primary mt-3">
+                                    Сохранить
+                                </button>
+                                <a href="/student/quiz/{{ id }}" type="submit" class="btn btn-primary mt-1">
+                                    В главное меню
+                                </a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="diplomaModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Рассылка</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <h5 class="card-title">Получение диплома</h5>
+                            <p class="card-text">
+                                Введите ваше имя, оно будет на дипломе
+                            </p>
+                            <form action="/diploma/create" method="post">
+                                <label class="form-label">Имя</label>
+                                <input type="text" class="form-control mb-1" name="user_name">
+
+                                <label class="form-label">Название квиза</label>
+                                <input type="text" class="form-control" name="quiz_name"
+                                       value="{{ quiz.title }}" readonly>
+                                <button type="submit" class="btn btn-primary mt-3">Создать</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function saySolveText(quizText) {
+                    var msg = new SpeechSynthesisUtterance();
+                    msg.text = quizText;
+                    window.speechSynthesis.speak(msg);
+                }
+
+                function resizeText() {
+                    document.getElementById("solveTextDiv").style.fontSize = "45px";
+                }
+
+                function soundTest() {
+                    var msg = new SpeechSynthesisUtterance();
+                    msg.text = "Your soundcard works perfectly!";
+                    window.speechSynthesis.speak(msg);
+                }
+            </script>
+
+
+        </div>
+    </div>
+</div>
+
+<script src="/alljs/confetti.js" type="text/javascript"></script>
+
+</body>
+</html>

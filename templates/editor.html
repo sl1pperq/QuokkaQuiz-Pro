@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование вопроса</title>
+    {% include "metrika.html" %}
+    {% block yandex_metrika %}{% endblock %}
+    <link href="/static/bs/bootstrap.min.css" rel="stylesheet">
+    <script src="/static/bs/bootstrap.min.js"></script>
+    <script src="/static/allcss/kit.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        a {
+            text-decoration: none;
+        }
+
+        #linkButton {
+            background: none !important;
+            border: none;
+            padding: 0 !important;
+            font-family: arial, sans-serif;
+            text-decoration: none;
+            color: #069;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+
+            <h1 style="visibility: collapse">Создание квиза</h1>
+
+            <nav class="navbar fixed-top bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="/constructor">КвоккаКвиз</a>
+                </div>
+            </nav>
+
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mt-5">
+                    <li class="breadcrumb-item">
+                        <a href="/">Главная</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="/constructor">Учительская</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="/constructor/{{ id }}?focusquiz#test{{ test.id }}">Конструктор</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        Редактор квиза
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="card mb-3" id="test{{ test.id }}">
+                <div class="card-body">
+                    {% set typi = "Текст" %}
+                    {% if test.type == "text" %}
+                        {% set typi = "Текстовый ответ" %}
+                    {% elif test.type == "choice" %}
+                        {% set typi = "Выбор ответа" %}
+                    {% elif test.type == "after_check" %}
+                        {% set typi = "Ответ с проверкой" %}
+                    {% elif test.type == "python_code" %}
+                        {% set typi = "Код на Python" %}
+                    {% elif test.type == "slider" %}
+                        {% set typi = "Слайдер" %}
+                    {% elif test.type == "audio" %}
+                        {% set typi = "Аудирование" %}
+                    {% endif %}
+
+                    <h5 class="card-title">{{ typi }}</h5>
+
+                    <form action="/save/quiz/{{ id }}/{{ test.type }}/{{ test.id }}" class="row g-3"
+                          method="post">
+                        <div class="col-md-12">
+                            <label class="form-label">Ссылка на фото (опционально)</label>
+                            <input name="image" type="text" class="form-control"
+                                   value="{{ test.image }}">
+                            <div class="form-text">
+                                По умолчанию - <b>None</b>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Описание</label>
+                            <textarea name="text" class="form-control"
+                                      rows="3">{{ test.text }}</textarea>
+                            <div class="form-text">
+                                Поддерживается разметка Markdown. Инструкция -
+                                <a target="_blank"
+                                   href="https://gist.github.com/Jekins/2bf2d0638163f1294637">
+                                    здесь
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-1">
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                            <hr>
+                        </div>
+                    </form>
+                    {% if test.type == "cross" %}
+                        <form action="/set/cross/answer/{{ id }}/{{ test.id }}" method="post"
+                              class="mb-3 mt-0">
+                            <label class="form-label">Короткий ответ</label>
+                            <input type="text"
+                                   value="{{ test.answer }}"
+                                   class="form-control"
+                                   name="answer">
+                            <button type="submit" class="btn btn-primary mt-3">Сохранить ответ</button>
+                            <hr>
+                        </form>
+                    {% endif %}
+                    <div class="col-md-12">
+                        {% if test.type != "cross" %}
+                            {% for a in test.answer %}
+                                <form action="/save/answer/{{ id }}/{{ test.id }}/{{ a.id }}"
+                                      class="row g-3"
+                                      method="post">
+                                    <div class="col-md-12">
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text">
+                                                <button type="submit" id="linkButton">
+                                                    Сохранить
+                                                </button>
+                                            </span>
+                                            <span class="input-group-text">
+                                                <a href="/del/answer/{{ id }}/{{ test.id }}/{{ a.id }}">
+                                                    Удалить
+                                                </a>
+                                            </span>
+                                            {% if test.type == 'choice' %}
+                                                {% if a.true == True %}
+                                                    <span class="input-group-text">
+                                                        <a href="/set/answer/status/{{ id }}/{{ test.id }}/{{ a.id }}/{{ a.true }}">
+                                                            Правильный
+                                                        </a>
+                                                    </span>
+                                                {% else %}
+                                                    <span class="input-group-text">
+                                                        <a href="/set/answer/status/{{ id }}/{{ test.id }}/{{ a.id }}/{{ a.true }}">
+                                                            Неправильный
+                                                        </a>
+                                                    </span>
+                                                {% endif %}
+                                            {% endif %}
+                                            <input type="text"
+                                                   value="{{ a.answer }}"
+                                                   class="form-control"
+                                                   name="answer"
+                                            >
+                                        </div>
+                                    </div>
+                                </form>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if test.type == "python_code" %}
+                            <a href="/add/checkpoint/{{ id }}/{{ test.id }}"
+                               class="btn btn-primary mb-3">
+                                Создать чекпоинт
+                            </a>
+                            <div class="row g-3">
+                                {% for c in test.checkpoints %}
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <h5 class="card-title">
+                                                    Чекпоинт №{{ loop.index }}
+                                                </h5>
+                                                <form action="/save/checkpoint/{{ id }}/{{ test.id }}/{{ c.id }}"
+                                                      method="post">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Ввод</label>
+                                                        <textarea name="input" class="form-control"
+                                                                  rows="2">{{ c.input }}</textarea>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Вывод</label>
+                                                        <textarea name="output" class="form-control"
+                                                                  rows="2">{{ c.output }}</textarea>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">
+                                                        Сохранить
+                                                    </button>
+                                                    <a href="/del/checkpoint/{{ id }}/{{ test.id }}/{{ c.id }}"
+                                                       class="btn btn-outline-danger">
+                                                        Удалить
+                                                    </a>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <hr>
+                        {% endif %}
+
+
+                        {% if test.type == "slider" %}
+                            <hr class="mt-1">
+                            <form class="row g-3" method="post"
+                                  action="/quiz/{{ id }}/{{ test.id }}/slider/save">
+                                <div class="col-md-4">
+                                    <label class="form-label">
+                                        Минимальное значение
+                                    </label>
+                                    <input type="number" name="minval" class="form-control"
+                                           value="{{ test.slider.minval }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">
+                                        Максимальное значение
+                                    </label>
+                                    <input type="number" name="maxval" class="form-control"
+                                           value="{{ test.slider.maxval }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">
+                                        Шаг слайдера
+                                    </label>
+                                    <input type="number" name="step" class="form-control"
+                                           value="{{ test.slider.step }}">
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-outline-primary">
+                                        Сохранить слайдер
+                                    </button>
+                                </div>
+                            </form>
+                        {% endif %}
+
+                        {% if test.type == "audio" %}
+                            <hr class="mt-1">
+                            <form method="post" action="/quiz/{{ id }}/{{ test.id }}/audio/save">
+                                <label class="form-label">Текст для озвучки</label>
+                                <textarea name="audio_text" class="form-control"
+                                          rows="3">{{ test.audio_text }}</textarea>
+                                <button type="submit" class="btn btn-outline-primary mt-3">
+                                    Сохранить текст
+                                </button>
+                            </form>
+                        {% endif %}
+
+                    </div>
+                    {% if test.type != "after_check" and test.type != "python_code" and test.type != "cross" and test.type != "param" %}
+                        <hr>
+                        <a href="/add/answer/{{ id }}/{{ test.type }}/{{ test.id }}"
+                           class="btn btn-primary">
+                            Добавить ответ
+                        </a>
+                    {% elif test.system != None and test.type == "after_check" %}
+                        <div class="accordion mb-4" id="accordion{{ loop.index0 }}">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#collapse{{ loop.index0 }}"
+                                            aria-expanded="false" aria-controls="collapseTwo">
+                                        Ответ от нейросети
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ loop.index0 }}" class="accordion-collapse collapse"
+                                     data-bs-parent="#accordion{{ loop.index0 }}">
+                                    <div class="accordion-body">
+                                        {{ test.system|safe }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif test.system == None and test.type == "after_check" %}
+                        <a href="/add/gpt/answer/{{ id }}/{{ test.id }}" class="btn btn-primary">
+                            Ответ от нейросети
+                        </a>
+                    {% endif %}
+
+                    {% if test.type != "cross" %}
+                        <a href="/bank/add/{{ id }}/{{ test.id }}" class="btn btn-primary">
+                            Пополнить банк
+                        </a>
+                    {% endif %}
+
+                    <hr>
+
+                    <div class="accordion" id="acc{{ test.id }}">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#text{{ test.id }}" aria-expanded="false"
+                                        aria-controls="collapseTwo">
+                                    Качество вопроса
+                                </button>
+                            </h2>
+                            <div id="text{{ test.id }}" class="accordion-collapse collapse"
+                                 data-bs-parent="#acc{{ test.id }}">
+                                <div class="accordion-body">
+                                    {% if test.quality == None %}
+                                        <a href="/quality/check/{{ quiz.id }}/{{ test.id }}"
+                                           type="button"
+                                           class="btn btn-primary position-relative">
+                                            Проверить вопрос на качество
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                GPT AI
+                                            </span>
+                                        </a>
+                                    {% else %}
+                                        {{ test.quality | safe }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <a href="/constructor/{{ id }}?focusquiz#test{{ test.id }}" class="btn btn-warning mt-1 rounded-3">
+                <i class="fa-solid fa-backward me-1"></i>
+                Обратно к квизу
+            </a>
+            <a href="/delete/quiz/{{ id }}/{{ test.id }}" class="btn btn-danger mt-1 rounded-3">
+                <i class="fa-solid fa-trash me-1"></i>
+                Удалить вопрос
+            </a>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

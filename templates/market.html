@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>КвоккаМаркет - магазин с квизами</title>
+    {% include "metrika.html" %}
+    {% block yandex_metrika %}{% endblock %}
+    <link href="/static/bs/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+
+            <h1 style="visibility: collapse">Просмотр результатов</h1>
+
+            <nav class="navbar fixed-top bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="/">КвоккаКвиз</a>
+                </div>
+            </nav>
+
+            <div class="card mt-5">
+                <div class="card-body">
+                    <h5 class="card-title">КвоккаМаркет</h5>
+                    <p class="card-text">Удобный магазин квизов для учителей</p>
+                    <h5 class="card-title">Баланс: {{ user.coins }} TC</h5>
+                    <a href="/" class="btn btn-primary">На главную</a>
+                    <a href="/constructor" class="btn btn-primary">Продать квиз</a>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-1">
+                {% for m in market %}
+                    {% if m.status == True %}
+                    <div class="col-md-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    {{ m.quiz.title }}
+                                    <span class="badge rounded-pill text-bg-warning">
+                                    {{ m.quiz.test|length }} вопросов
+                                </span>
+                                </h5>
+                                <p class="card-text mt-1">
+                                    {{ m.quiz.text }}
+                                </p>
+                                <ul class="list-group">
+                                    {% for test in m.quiz.test %}
+                                        <li class="list-group-item">
+                                            {% set typi = "Текст" %}
+                                            {% if test.type == "text" %}
+                                                {% set typi = "Текстовый ответ" %}
+                                            {% elif test.type == "choice" %}
+                                                {% set typi = "Выбор ответа" %}
+                                            {% elif test.type == "after_check" %}
+                                                {% set typi = "Ответ с проверкой" %}
+                                            {% elif test.type == "python_code" %}
+                                                {% set typi = "Код на Python" %}
+                                            {% elif test.type == "slider" %}
+                                                {% set typi = "Слайдер" %}
+                                            {% elif test.type == "audio" %}
+                                                {% set typi = "Аудирование" %}
+                                            {% endif %}
+                                            {{ typi }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                <hr>
+                                <h4 class="card-title">
+                                    {{ m.price }} TC
+                                </h4>
+                                <hr>
+                                <a href="/market/shop/{{ m.id }}" class="btn btn-outline-primary mt-1 w-100">
+                                    Купить
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

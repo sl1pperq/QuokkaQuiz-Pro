@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap");
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: grid;
+            place-items: center;
+            place-content: center;
+            grid-template-areas: "body";
+            background: #27052d;
+            color: white;
+            overflow: hidden;
+        }
+
+        body::before {
+            --size: 150vmax;
+            --bg-size: 50%;
+
+            content: "";
+            grid-area: body;
+            width: var(--size);
+            height: var(--size);
+            opacity: var(--pattern-opacity, 1);
+            background-color: blue;
+
+            /* Pattern from https://heropatterns.com/ */
+            background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='hotpink' %3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+
+            background-size: var(--bg-size);
+            background-repeat: repeat;
+            animation: var(--pattern-animation, pattern 20s linear infinite);
+        }
+
+        h1 {
+            grid-area: body;
+            position: relative;
+            display: flex;
+            align-items: center;
+            font-family: "Outfit", sans-serif;
+            font-size: calc(1rem + 15vmin);
+            line-height: 0.9;
+            text-transform: uppercase;
+            mix-blend-mode: difference;
+        }
+
+        h1 span {
+            display: block;
+        }
+
+        button {
+            display: none;
+            cursor: pointer;
+            position: fixed;
+            bottom: 5vh;
+            left: 0;
+            right: 0;
+            width: fit-content;
+            margin-inline: auto;
+            padding: 0.75rem 1.5rem;
+            font-family: system-ui, sans-serif;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: blue;
+            background: white;
+            border: 1px solid transparent;
+            border-radius: 360px;
+            box-shadow: 0 6px 6px -3px hsla(0 0% 0% / 0.1);
+        }
+
+        @keyframes pattern {
+            to {
+                background-position: calc(var(--size) * -1) calc(var(--size) * -1);
+            }
+        }
+
+        /* JS available and motion OK */
+        @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+            body {
+                --pattern-opacity: 0;
+            }
+
+            h1 {
+                opacity: 0;
+            }
+        }
+
+        /* JS disabled or reduced motion enabled */
+        @media (scripting: none), (prefers-reduced-motion) {
+            h1 {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .hash {
+                display: none;
+            }
+        }
+
+        @media (prefers-reduced-motion) {
+            body {
+                --pattern-animation: none;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>
+    <span class="hash" aria-hidden="true">#</span>
+    <span class="word">Квокка </span>
+    <span class="word">Квиз </span>
+    <span class="word">Pro </span>
+</h1>
+
+
+<script>
+    let heading = document.querySelector("h1");
+    let words = heading.querySelectorAll(".word");
+    let hash = heading.querySelector(".hash");
+    let reducedMotion = window.matchMedia("(prefers-reduced-motion)").matches;
+
+    if (!reducedMotion) {
+        let tl = gsap.timeline();
+
+        tl.set(heading, {
+            scale: 0.25,
+            opacity: 0
+        })
+            .to(heading, {
+                scale: 0.4,
+                opacity: 1,
+                duration: 0.7,
+                ease: "power4.out"
+            })
+
+            // Byebye hash
+            .to(
+                hash,
+                {
+                    scale: 0,
+                    duration: 0.4,
+                    ease: "back.in(1.6)"
+                },
+                "-=0.2"
+            )
+
+            // Part words
+            .to(words[0], {
+                xPercent: -20,
+                duration: 0.8,
+                ease: "elastic.out(0.7, 0.2)"
+            })
+            .to(
+                words[1],
+                {
+                    xPercent: -20,
+                    duration: 0.8,
+                    ease: "elastic.out(0.7, 0.2)"
+                },
+                "<"
+            )
+            .to(
+                words[2],
+                {
+                    xPercent: 5,
+                    duration: 0.8,
+                    ease: "elastic.out(0.7, 0.2)"
+                },
+                "<"
+            )
+
+            // Scale up heading
+            .to(
+                heading,
+                {
+                    scale: 1.001,
+                    y: 0,
+                    duration: 0.5,
+                    ease: "back.in(1.5)"
+                },
+                "-=0.3"
+            )
+
+            // Stack words
+            .to(
+                words[1],
+                {
+                    scaleX: 1.8,
+                    scaleY: 2.2,
+                    duration: 0.4,
+                    ease: "expo.inOut"
+                },
+                "<+=0.1"
+            )
+            .to(
+                words[0],
+                {
+                    yPercent: -150,
+                    xPercent: 40,
+                    duration: 0.3,
+                    ease: "power4.out"
+                },
+                "<"
+            )
+            .to(
+                words[1],
+                {
+                    xPercent: -70,
+                    duration: 0.3,
+                    ease: "power4.out"
+                },
+                "<"
+            )
+            .to(
+                words[2],
+                {
+                    yPercent: 150,
+                    xPercent: -110,
+                    duration: 0.3,
+                    ease: "power4.out"
+                },
+                "<"
+            )
+
+            .to(
+                heading,
+                {
+                    scale: 1.1,
+                    duration: 0.3,
+                    ease: "power4.out"
+                },
+                "-=0.2"
+            )
+
+            // Elastic finish
+            .to(heading, {
+                scale: 1,
+                duration: 0.3,
+                ease: "power4.out"
+            })
+            .to(
+                words[0],
+                {
+                    yPercent: -100,
+                    xPercent: 40,
+                    duration: 0.6,
+                    ease: "elastic.out(0.6,0.2)"
+                },
+                "<"
+            )
+
+            .to(
+                words[1],
+                {
+                    scale: 1,
+                    duration: 0.6,
+                    ease: "elastic.out(0.6,0.2)"
+                },
+                "<"
+            )
+            .to(
+                words[2],
+                {
+                    yPercent: 100,
+                    duration: 0.6,
+                    ease: "elastic.out(0.6,0.2)"
+                },
+                "<"
+            )
+
+            // Pattern reveal
+            .to(
+                document.body,
+                {
+                    "--pattern-opacity": 1,
+                    duration: 0.1
+                },
+                "<"
+            )
+    }
+
+    function onMainPage() {
+        window.location.href = "/"
+    }
+
+    setTimeout(onMainPage, 5000)
+
+</script>
+
+</body>
+</html>

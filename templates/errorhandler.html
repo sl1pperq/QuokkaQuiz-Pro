@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Quiz</title>
+    {% include "metrika.html" %}
+    {% block yandex_metrika %}{% endblock %}
+    <link href="/static/bs/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+
+            <h1 style="visibility: collapse">Просмотр результатов</h1>
+
+            <nav class="navbar fixed-top bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="/">КвоккаКвиз</a>
+                </div>
+            </nav>
+
+            <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+                <symbol id="arrow-right-circle" viewBox="0 0 16 16">
+                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                </symbol>
+            </svg>
+
+
+                <div class="col-lg-8 mx-auto p-4 py-md-5">
+                    <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
+                        <a href="#" class="d-flex align-items-center text-body-emphasis text-decoration-none">
+                            <span class="fs-4">Служба технической поддержки КвоккаКвиз</span>
+                        </a>
+                    </header>
+
+                    <main>
+                        <h1 class="text-body-emphasis">Произошла ошибка</h1>
+                        <p class="fs-5 col-md-8">
+                            Нам очень жаль, что так произошло. Специалисты уже получили сведения об ошибке и работают над ее исправлением
+                        </p>
+
+                        <div class="mb-5">
+                            <a href="/" class="btn btn-primary btn-lg px-4">На главную</a>
+                            <button onclick="window.location.reload()" class="btn btn-primary btn-lg px-4">Перезагрузить</button>
+                            <button onclick="history.back()" class="btn btn-primary btn-lg px-4">Назад</button>
+                        </div>
+
+                        <hr class="col-3 col-md-2 mb-5">
+
+                        <div class="row g-5">
+                            <div class="col-md-6">
+                                <h2 class="text-body-emphasis">Инструкция</h2>
+                                <p>
+                                    Вы можете узнать подробнее, как создавать квизы правильно и продуктивно
+                                </p>
+                                <ul class="list-unstyled ps-0">
+                                    <li>
+                                        <a class="icon-link mb-1"
+                                           href="#" rel="noopener">
+                                            <svg class="bi" width="16" height="16">
+                                                <use xlink:href="#arrow-right-circle"/>
+                                            </svg>
+                                            Создание вопросов
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="icon-link mb-1" href="#">
+                                            <svg class="bi" width="16" height="16">
+                                                <use xlink:href="#arrow-right-circle"/>
+                                            </svg>
+                                            Просмотр результатов
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="icon-link mb-1" href="#">
+                                            <svg class="bi" width="16" height="16">
+                                                <use xlink:href="#arrow-right-circle"/>
+                                            </svg>
+                                            Управление группами
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h2 class="text-body-emphasis">Помощь</h2>
+                                <p>
+                                    Вы можете всегда получить оперативный ответ от службы поддержки
+                                </p>
+                                <ul class="list-unstyled ps-0">
+                                    <li>
+                                        <a class="icon-link mb-1">
+                                            <svg class="bi" width="16" height="16">
+                                                <use xlink:href="#arrow-right-circle"/>
+                                            </svg>
+                                            Написать в поддержку
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="icon-link mb-1" href="#">
+                                            <svg class="bi" width="16" height="16">
+                                                <use xlink:href="#arrow-right-circle"/>
+                                            </svg>
+                                            Позвонить
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="icon-link mb-1" href="#">
+                                            <svg class="bi" width="16" height="16">
+                                                <use xlink:href="#arrow-right-circle"/>
+                                            </svg>
+                                            Написать в WhatsApp
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
